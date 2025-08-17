@@ -51,18 +51,52 @@ const upload = () => {
         await kv.set(`resume:${uuid}`, JSON.stringify(data));
 
         setStatusText('Analyzing...');
+        console.log('reached point 1');
 
-        const feedback = await ai.feedback(
-            uploadedFile.path,
-            prepareInstructions({ jobTitle, jobDescription, AIResponseFormat })
-        )
-        if (!feedback) return setStatusText('Error: Failed to analyze resume');
-
-        const feedbackText = typeof feedback.message.content === 'string'
-            ? feedback.message.content
-            : feedback.message.content[0].text;
-
-        data.feedback = JSON.parse(feedbackText);
+        let feedback;
+        try {
+            feedback = await ai.feedback(
+                uploadedFile.path,
+                prepareInstructions({ jobTitle, jobDescription, AIResponseFormat })
+            )
+            console.log('reached point 2');
+            console.log('Feedback response:', feedback);
+            
+            if (!feedback) {
+                console.error('Feedback response is null or undefined');
+                return setStatusText('Error: Failed to analyze resume');
+            }
+            
+            if (!feedback.message) {
+                console.error('Feedback message is missing:', feedback);
+                return setStatusText('Error: Invalid response format from AI');
+            }
+            
+            let feedbackText: string;
+            if (typeof feedback.message.content === 'string') {
+                feedbackText = feedback.message.content;
+            } else if (Array.isArray(feedback.message.content) && feedback.message.content.length > 0) {
+                feedbackText = feedback.message.content[0].text || '';
+            } else {
+                console.error('Unexpected feedback format:', feedback.message);
+                return setStatusText('Error: Unexpected response format');
+            }
+            
+            console.log('Feedback text:', feedbackText);
+            console.log('reached point 3');
+            
+            try {
+                data.feedback = JSON.parse(feedbackText);
+            } catch (parseError) {
+                console.error('Error parsing JSON:', parseError);
+                console.error('Raw feedback text:', feedbackText);
+                return setStatusText('Error: Failed to parse AI response');
+            }
+            
+        } catch (error) {
+            console.error('Error in ai.feedback:', error);
+            return setStatusText(`Error: ${error instanceof Error ? error.message : 'Failed to analyze resume'}`);
+        }
         await kv.set(`resume:${uuid}`, JSON.stringify(data));
         setStatusText('Analysis complete, redirecting...');
         console.log(data);

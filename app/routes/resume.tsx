@@ -37,7 +37,7 @@ const resume = () => {
             </Link>
         </nav>
         <div className='flex flex-row w-full max-lg:flex-col-reverse'>
-            <section className='feedback-section animate-in fade-in duration-1000'>
+            <section className='p-8 animate-in fade-in duration-1000'>
                 {feedback && <Summary feedback={feedback} />}
                 {feedback && <ATS score={feedback?.ATS.score || 0} suggestions={feedback?.ATS.tips || []}></ATS>}
                 {feedback && <Details feedback={feedback}></Details>}

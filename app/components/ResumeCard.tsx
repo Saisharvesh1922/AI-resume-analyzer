@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import {Link} from "react-router";
 import ScoreCircle from "~/components/ScoreCircle";
 import { usePuterStore } from '~/lib/puter';
-import { useNavigate } from 'react-router';
 
 const ResumeCard = ({ resume: { id, companyName, jobTitle, feedback, imagePath } }: { resume: Resume }) => {
-    const navigate = useNavigate();
     const {fs} = usePuterStore();
     const[url, setUrl] = useState('');
     useEffect(() => {
@@ -32,7 +30,7 @@ const ResumeCard = ({ resume: { id, companyName, jobTitle, feedback, imagePath }
             <div className="gradient-border animate-in fade-in duration-1000">
                 <div className="w-full h-full">
                     <img
-                        src={imagePath}
+                        src={url}
                         alt="resume"
                         className="w-full h-[350px] max-sm:h-[200px] object-cover object-top"
                     />
